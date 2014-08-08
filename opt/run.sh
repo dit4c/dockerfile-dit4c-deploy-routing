@@ -43,7 +43,6 @@ docker run -d --name dit4c_highcommand \
 docker run -d --name dit4c_hipache \
     --link dit4c_redis:redis \
     -v /var/log/dit4c_hipache/supervisor:/var/log/supervisor \
-    -v /var/log/dit4c_hipache/hipache_access.log:/var/log/hipache_access.log \
     dit4c/dit4c-platform-hipache
 
 docker run -d --name dit4c_ssl \
