@@ -7,7 +7,7 @@ ENV CONFIG_DIR /opt/config
 ENV SSL_DIR /opt/ssl
 ENV DIT4C_DOMAIN dit4c.metadata.net
 
-RUN yum install -y docker
+RUN yum install -y curl docker
 
 ADD /opt /opt
 
