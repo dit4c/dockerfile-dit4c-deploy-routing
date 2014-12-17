@@ -44,7 +44,8 @@ then
   echo "Using host etcd"
   docker start dit4c_etcd || docker run -d --name dit4c_etcd \
       --restart=always \
-      --expose 4001 progrium/ambassadord 172.17.42.1:4001
+      --expose 4001 -e ETCD_PORT_4001_TCP=tcp://172.17.42.1:4001 \
+      svendowideit/ambassador
 else
   echo "Using standalone etcd"
   docker start dit4c_etcd || docker run -d --name dit4c_etcd \
