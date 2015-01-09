@@ -59,7 +59,6 @@ done
 # Create hipache server
 docker start dit4c_hipache || docker run -d --name dit4c_hipache \
     --link dit4c_etcd:etcd \
-    -v /var/log/dit4c_hipache:/var/log \
     --restart=always \
     dit4c/dit4c-platform-hipache
 
