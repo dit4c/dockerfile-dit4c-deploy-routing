@@ -4,9 +4,7 @@ echo "Setting up routing frontend for $DIT4C_DOMAIN"
 echo "SSL key & certificate should be in $SSL_DIR"
 
 DOCKER_SOCKET="/var/run/docker.sock"
-ETCD_VERSION=v2.0.0_rc.1
 ETCD_IMAGE="quay.io/coreos/etcd:$ETCD_VERSION"
-SERVICE_DISCOVERY_PATH="/dit4c/containers"
 
 if [ ! -S $DOCKER_SOCKET ]
 then
