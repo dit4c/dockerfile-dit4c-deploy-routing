@@ -4,10 +4,19 @@ echo "Setting up routing frontend for $DIT4C_DOMAIN"
 echo "SSL key & certificate should be in $SSL_DIR"
 
 DOCKER_SOCKET="/var/run/docker.sock"
+ETCD_VERSION=v2.0.0_rc.1
+ETCD_IMAGE="quay.io/coreos/etcd:$ETCD_VERSION"
+SERVICE_DISCOVERY_PATH="/dit4c/containers"
 
 if [ ! -S $DOCKER_SOCKET ]
 then
     echo "Host Docker socket should be mounted at $DOCKER_SOCKET"
+    exit 1
+fi
+
+if [[ $HOST == "" ]]
+then
+    echo "HOST should be specified as an environment variable"
     exit 1
 fi
 
@@ -47,7 +56,7 @@ else
     -e ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:2379,http://0.0.0.0:4001" \
     -v /var/lib/etcd \
     --restart=always \
-    quay.io/coreos/etcd:v2.0.0_rc.1
+    $ETCD_IMAGE
 fi
 
 # Wait a little to ensure dit4c_etcd exist
@@ -56,11 +65,16 @@ do
     sleep 1
 done
 
+ETCD_IP=$(docker inspect -f "{{ .NetworkSettings.IPAddress }}" dit4c_etcd)
+ETCDCTL_CMD="docker run --rm -e ETCDCTL_PEERS=$ETCD_IP:2379 --entrypoint /etcdctl $ETCD_IMAGE --no-sync"
+
 # Create hipache server
 docker start dit4c_hipache || docker run -d --name dit4c_hipache \
     --link dit4c_etcd:etcd \
     --restart=always \
     dit4c/dit4c-platform-hipache
+$ETCDCTL_CMD set "$SERVICE_DISCOVERY_PATH/dit4c_hipache/$HOST" \
+  $(docker inspect -f "{{ .NetworkSettings.IPAddress }}" dit4c_hipache)
 
 # Create SSL termination frontend
 docker start dit4c_ssl || docker run -d --name dit4c_ssl \
@@ -70,6 +84,8 @@ docker start dit4c_ssl || docker run -d --name dit4c_ssl \
     --link dit4c_hipache:hipache \
     -v /var/log/dit4c_ssl:/var/log \
     dit4c/dit4c-platform-ssl
+$ETCDCTL_CMD set "$SERVICE_DISCOVERY_PATH/dit4c_ssl/$HOST" \
+  $(docker inspect -f "{{ .NetworkSettings.IPAddress }}" dit4c_ssl)
 
 echo "Done configuring routing."
 echo "Ensure you have a Hipache config for your portal."
