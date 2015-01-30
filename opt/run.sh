@@ -38,8 +38,8 @@ else
 fi
 
 # Establish if we need a local etcd, or we can reuse the host etcd
-HOST_IP=$(/sbin/ip route|awk '/default/ { print $3 }')
-curl -XHEAD -H "Connection: close" -v "http://$HOST_IP:2379/v2/stats/self"
+HOST_IP=$(ip route|awk '/default/ { print $3 }')
+curl -XGET -H "Connection: close" -v "http://$HOST_IP:2379/v2/stats/self"
 if [[ $? == 0 ]]
 then
   echo "Using host etcd"
