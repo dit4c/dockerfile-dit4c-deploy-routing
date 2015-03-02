@@ -68,12 +68,11 @@ ETCDCTL_CMD="docker run --rm -e ETCDCTL_PEERS=$ETCD_IP:2379 --entrypoint /etcdct
 
 # Create SSL termination frontend
 docker start dit4c_ssl || docker run -d --name dit4c_ssl \
-    -p 80:80 -p 443:443 \
+    -p 80:8080 -p 443:8443 \
     -e DIT4C_DOMAIN=$DIT4C_DOMAIN \
     --volumes-from dit4c_ssl_keys:ro \
     --link dit4c_etcd:etcd \
     --restart=always \
-    -v /var/log/dit4c_ssl:/var/log \
     dit4c/dit4c-platform-ssl
 $ETCDCTL_CMD set "$SERVICE_DISCOVERY_PATH/dit4c_ssl/$HOST" \
   $(docker inspect -f "{{ .NetworkSettings.IPAddress }}" dit4c_ssl)
