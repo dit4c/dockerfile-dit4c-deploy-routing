@@ -37,6 +37,7 @@ docker start dit4c_switchboard || docker run -d --name dit4c_switchboard \
     -p 443:8080 \
     -e DIT4C_DOMAIN=$DIT4C_DOMAIN \
     -e DIT4C_ROUTE_FEED=https://$DIT4C_DOMAIN/routes \
+    -v $CONFIG_DIR:/etc/dit4c-switchboard.d:ro \
     --volumes-from dit4c_ssl_keys:ro \
     --restart=always \
     dit4c/dit4c-platform-switchboard
